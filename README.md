@@ -2,7 +2,9 @@
 The following are quick commands to clear disk space on CentOS 6 or CentOS 7 servers.
 
 &tldr;
+
 curl -Ls http://bit.ly/clean-centos-disk-space | sudo bash
+
 Scared to run that? Just run individual commands that the script runs.
 
 Before anything, you have to install yum-utils package:
@@ -11,6 +13,7 @@ yum -y install yum-utils
 
 
 1. Trim log files
+
 find /var -name "*.log" \( \( -size +50M -mtime +7 \) -o -mtime +30 \) -exec truncate {} --size 0 \;
 This will truncate any *.log files on the volume /var that are either older than 7 days and greater than 50M or older than 30 days.
 
@@ -18,11 +21,13 @@ This will truncate any *.log files on the volume /var that are either older than
 The simple command to cleanup yum caches:
 
 yum clean all
+
 Note that the above command will not remove everything related to yum. For instance, metadata for disabled repositories will not be affected.
 
 You may want to free up space taken by orphaned data from disabled or removed repositories:
 
 rm -rf /var/cache/yum
+
 Also, when you accidentally run yum through a regular user (forgot sudo), yum will create user-cache. So let’s delete that too:
 
 rm -rf /var/tmp/yum-*
@@ -30,7 +35,9 @@ rm -rf /var/tmp/yum-*
 
 3. Remove orphan packages
 Check existing orphan packages
+
 package-cleanup --quiet --leaves 
+
 Confirm removing orphan packages
 Now, if happy with suggestions given by the previous command, run:
 
@@ -51,6 +58,7 @@ The following commands will keep just 2 latest kernels installed:
 
 (( $(rpm -E %{rhel}) >= 8 )) && dnf remove $(dnf repoquery --installonly --latest-limit=-2 -q)
 (( $(rpm -E %{rhel}) <= 7 )) && package-cleanup --oldkernels --count=2
+
 Note that with some VPS providers (Linode for example), servers use provider’s built kernels by default and not the ones on the server itself. So it makes little sense to keep more than 1 old kernel on the system. So:
 
 (( $(rpm -E %{rhel}) >= 8 )) && dnf remove $(dnf repoquery --installonly --latest-limit=-1 -q)
